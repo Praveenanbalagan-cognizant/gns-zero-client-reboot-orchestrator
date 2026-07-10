@@ -63,10 +63,18 @@ Blocked AP count: 4
 Mode: DRY RUN
 ```
 
+### Live Neuro SAN agent run
+
+This path talks to the Neuro SAN agent network through the NVIDIA/NVAPI-backed LLM:
+
+```powershell
+python backend\live_agent.py
+```
+
 ### Optional Streamlit frontend
 
 ```powershell
-streamlit run frontend\run.py
+python -m streamlit run frontend\run.py
 ```
 
 ### Optional Neuro SAN registry validation
