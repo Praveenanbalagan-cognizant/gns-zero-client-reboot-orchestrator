@@ -41,6 +41,23 @@ This design directly supports the hackathon scoring areas:
 - Neuro SAN features: multi-agent network, coded tool integration, task delegation, and final synthesis.
 - Code quality: clean separation between agent orchestration, safety logic, sample data, and reporting.
 
+## Why Neuro SAN Is Required
+
+Neuro SAN is required because the problem is not just “run a reboot command.” A safe AP reboot workflow needs multiple coordinated decisions: which APs belong to the requested site, which APs meet the uptime and zero-client rules, which APs are unsafe, whether the action should remain dry-run, how validation should be reported, and how the final answer should be explained to an engineer.
+
+Without Neuro SAN, the solution would be a single procedural script that produces output but does not naturally show the decision flow. With Neuro SAN, the project represents the operational process as a multi-agent network:
+
+- `Wireless_Reboot_Copilot` receives the request and coordinates the workflow.
+- `Inventory_Agent` reviews AP inventory.
+- `Eligibility_Agent` applies uptime and zero-client rules.
+- `Risk_Agent` blocks APs that violate safety guardrails.
+- `Execution_Agent` creates the dry-run reboot plan.
+- `Validation_Agent` validates the recovery state.
+- `Report_Agent` produces the final audit-ready report.
+- `APRebootTool` provides deterministic Python checks so the agents do not invent device decisions.
+
+This combination is the reason Neuro SAN is required: the agent network gives explainable orchestration, while the coded tool gives repeatable operational correctness.
+
 ## Safety and Compliance
 
 The hackathon version uses only synthetic AP inventory. The sample AP names, site tags, and controller fields are not real client data. The tool defaults to dry-run mode and does not connect to a live controller. This makes the demo safe and compliant while still showing the full operational workflow.
