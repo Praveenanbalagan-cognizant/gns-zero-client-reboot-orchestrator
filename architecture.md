@@ -4,13 +4,14 @@
 
 GNS Zero-Client Reboot Orchestrator is a Neuro SAN based multi-agent workflow for safe wireless AP reboot operations. It helps a wireless operations engineer identify access points with high uptime, confirm they have zero active clients, check operational risk, execute or simulate reboot actions, validate recovery, and generate a final report.
 
-The project wraps an existing AP reboot automation tool with an agentic orchestration layer. The Python tool handles deterministic device logic, while the Neuro SAN agents handle task decomposition, explanation, decision flow, and report generation.
+The project wraps an existing AP reboot automation tool with an agentic orchestration layer. The Python tool handles deterministic device logic, while the Neuro SAN agents handle task decomposition, explanation, decision flow, and report generation. The repository includes both a standalone dry-run path and a live Neuro SAN direct-agent path backed by NVIDIA/NVAPI.
 
 ## High-Level Architecture
 
 ```mermaid
 flowchart LR
     User["Wireless Engineer"] --> Front["Wireless Reboot Copilot<br/>Neuro SAN front agent"]
+    UI["Streamlit UI / live_agent.py"] --> Front
     Front --> Inventory["Inventory Agent"]
     Front --> Eligibility["Eligibility Agent"]
     Front --> Risk["Risk Agent"]
@@ -43,7 +44,7 @@ flowchart LR
 
 ## Data Flow
 
-1. The user asks for AP reboot planning using a site tag and safety requirements.
+1. The user asks for AP reboot planning using the Streamlit UI, `backend/live_agent.py`, or the Neuro SAN client with a site tag and safety requirements.
 2. The front agent delegates the request to the inventory agent.
 3. The inventory agent calls the coded tool to load AP data.
 4. The eligibility agent filters APs using uptime and zero-client rules.
