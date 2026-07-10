@@ -62,7 +62,7 @@
           "type": "object",
           "properties": {
             "site_tag": {"type": "string"},
-            "min_uptime_days": {"type": "integer"}
+            "min_uptime_days": {"type": "string", "description": "Minimum AP uptime days, for example 100"}
           }
         }
       },
@@ -81,7 +81,7 @@
           "type": "object",
           "properties": {
             "site_tag": {"type": "string"},
-            "min_uptime_days": {"type": "integer"}
+            "min_uptime_days": {"type": "string", "description": "Minimum AP uptime days, for example 100"}
           }
         }
       },
@@ -138,7 +138,7 @@
           "type": "object",
           "properties": {
             "site_tag": {"type": "string"},
-            "min_uptime_days": {"type": "integer"},
+            "min_uptime_days": {"type": "string", "description": "Minimum AP uptime days, for example 100"},
             "dry_run": {"type": "boolean"}
           }
         }
@@ -160,8 +160,8 @@
             "action": {"type": "string", "description": "full_report or report"},
             "inventory_path": {"type": "string", "description": "Path to AP inventory CSV"},
             "site_tag": {"type": "string", "description": "Site tag filter"},
-            "min_uptime_days": {"type": "integer", "description": "Minimum AP uptime days"},
-            "batch_size": {"type": "integer", "description": "Maximum AP count per reboot batch"},
+            "min_uptime_days": {"type": "string", "description": "Minimum AP uptime days, for example 100"},
+            "batch_size": {"type": "string", "description": "Maximum AP count per reboot batch, for example 3"},
             "dry_run": {"type": "boolean", "description": "Use dry-run mode"}
           },
           "required": ["action"]
