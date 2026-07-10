@@ -4,6 +4,11 @@ A Neuro SAN based wireless operations assistant that identifies APs with high up
 
 This project uses synthetic AP data only. No client data, production AP inventory, controller credentials, or internal logs are included.
 
+## Participant
+
+- Participant #1: Praveen Anbalagan
+- Employee ID: 2359992
+
 ## Prerequisites
 
 - Python 3.13
