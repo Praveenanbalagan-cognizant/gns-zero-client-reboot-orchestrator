@@ -7,9 +7,7 @@ This project uses synthetic AP data only. No client data, production AP inventor
 ## Prerequisites
 
 - Python 3.13
-- One LLM API key for the full Neuro SAN agent run
-- Optional: OpenAI API key from `https://platform.openai.com/api-keys`
-- Optional: Mistral API key if provided or approved for the hackathon
+- NVIDIA/NVAPI key for the full Neuro SAN agent run
 
 The standalone dry-run backend works without an API key.
 
@@ -31,18 +29,18 @@ python -m pip install -r requirements.txt
 
 If package metadata downloads are blocked by network policy, the standalone backend can still be demonstrated without installing Neuro SAN or Streamlit.
 
-### 3. Set API key for full agent run
+### 3. Set NVIDIA/NVAPI key for full agent run
 
-OpenAI:
+Set the key only in your local PowerShell session:
 
 ```powershell
-$env:OPENAI_API_KEY="paste-your-key-here"
+$env:NVIDIA_API_KEY="paste-your-nvapi-key-here"
 ```
 
-Mistral, if configured in your local Neuro SAN setup:
+Confirm it is set without printing the key:
 
 ```powershell
-$env:MISTRAL_API_KEY="paste-your-key-here"
+python -c "import os; print('NVIDIA_API_KEY is set' if os.getenv('NVIDIA_API_KEY') else 'missing')"
 ```
 
 Do not commit API keys or `.env` files.
