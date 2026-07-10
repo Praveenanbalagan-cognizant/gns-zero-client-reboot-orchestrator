@@ -1,6 +1,8 @@
 {
     "llm_config": {
         "class": "nvidia",
-        "model_name": "nvidia-llama-3.3-70b-instruct",
+        "model_name": "meta/llama-3.3-70b-instruct",
+        "temperature": 0.1,
+        "max_tokens": 1200,
     },
 }
