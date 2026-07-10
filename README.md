@@ -103,6 +103,7 @@ python -m neuro_san.client.hocon_validator_cli backend/registries/ap_reboot_orch
 gns-zero-client-reboot-orchestrator/
 |-- backend/
 |   |-- run.py
+|   |-- live_agent.py
 |   |-- ap_reboot_tools.py
 |   |-- registries/
 |   |   |-- manifest.hocon
@@ -114,7 +115,8 @@ gns-zero-client-reboot-orchestrator/
 |           |-- __init__.py
 |           `-- ap_reboot_tool.py
 |-- frontend/
-|   `-- run.py
+|   |-- run.py
+|   `-- browser_demo.html
 |-- data/
 |   `-- sample_ap_inventory.csv
 |-- requirements.txt
@@ -139,6 +141,20 @@ The project is designed as a multi-agent wireless maintenance workflow:
 | `APRebootTool` | Python coded tool that performs deterministic checks and reporting |
 
 The browser demo mirrors this workflow visually for recording and fallback demonstration.
+
+## Why Neuro SAN Is Required
+
+Neuro SAN is required because this project is not intended to be only a reboot script. The AP reboot process needs coordinated decisions across inventory review, eligibility checking, risk control, execution planning, validation, and reporting. Neuro SAN allows these responsibilities to be modeled as a network of specialist agents instead of one monolithic function.
+
+In this project, Neuro SAN provides:
+
+- A front agent that understands the wireless maintenance request and coordinates the workflow.
+- Specialist agents for inventory, eligibility, risk, execution, validation, and reporting.
+- A coded tool integration point where deterministic Python logic performs the AP safety checks.
+- A clear separation between agent reasoning and operational guardrails.
+- A reviewable decision trail that explains why APs were selected or blocked.
+
+This is important for wireless operations because reboot automation must be safe, explainable, and auditable. Neuro SAN makes the workflow agentic while the coded tool keeps the device-selection logic predictable.
 
 ## Demo Prompt
 
