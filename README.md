@@ -71,6 +71,20 @@ This path talks to the Neuro SAN agent network through the NVIDIA/NVAPI-backed L
 python backend\live_agent.py
 ```
 
+### Browser dry-run demo
+
+This path is the fastest demo option and does not require Streamlit, an API key, or a controller connection:
+
+```powershell
+python -m http.server 8765
+```
+
+Then open:
+
+```text
+http://localhost:8765/frontend/browser_demo.html
+```
+
 ### Optional Streamlit frontend
 
 ```powershell
@@ -123,6 +137,8 @@ The project is designed as a multi-agent wireless maintenance workflow:
 | `Validation_Agent` | Validates AP recovery state |
 | `Report_Agent` | Generates the final report |
 | `APRebootTool` | Python coded tool that performs deterministic checks and reporting |
+
+The browser demo mirrors this workflow visually for recording and fallback demonstration.
 
 ## Demo Prompt
 
