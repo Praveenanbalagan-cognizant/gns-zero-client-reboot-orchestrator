@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GNS Zero-Client Reboot Orchestrator</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #637083;
+      --line: #d8dee8;
+      --panel: #ffffff;
+      --page: #f4f7fb;
+      --blue: #1f6feb;
+      --green: #198754;
+      --amber: #b7791f;
+      --red: #b42318;
+      --navy: #111827;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--page);
+    }
+
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 22px 32px;
+      border-bottom: 4px solid var(--blue);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 15px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(290px, 380px) 1fr;
+      gap: 18px;
+      padding: 18px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    section,
+    aside {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    }
+
+    aside {
+      padding: 18px;
+      align-self: start;
+      position: sticky;
+      top: 12px;
+    }
+
+    .workspace {
+      display: grid;
+      gap: 18px;
+    }
+
+    .band {
+      padding: 18px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    label {
+      display: block;
+      margin: 13px 0 6px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 11px;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 14px 0;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .toggle input {
+      width: 18px;
+      height: 18px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 44px;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 11px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .secondary {
+      background: #e8eef8;
+      color: var(--ink);
+      font-size: 19px;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfdff;
+      min-height: 88px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(108px, 1fr));
+      gap: 10px;
+    }
+
+    .agent {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 92px;
+      background: #fbfdff;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .agent.done {
+      border-color: #88c7a1;
+      background: #eefaf2;
+    }
+
+    .agent.active {
+      border-color: var(--blue);
+      background: #eef5ff;
+    }
+
+    .agent strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .agent span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .result-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .result-item {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      border-radius: 7px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .result-item.blocked {
+      border-left-color: var(--red);
+    }
+
+    .result-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .result-item span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #475569;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .ok {
+      color: #0f5132;
+      background: #d1e7dd;
+    }
+
+    .warn {
+      color: #664d03;
+      background: #fff3cd;
+    }
+
+    .bad {
+      color: #842029;
+      background: #f8d7da;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #0f172a;
+      color: #e5edf8;
+      border-radius: 8px;
+      padding: 16px;
+      max-height: 520px;
+      overflow: auto;
+    }
+
+    .agent-answer {
+      border-left: 4px solid var(--blue);
+      background: #f8fbff;
+      padding: 13px 14px;
+      border-radius: 7px;
+      color: #243142;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 980px) {
+      main,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      aside {
+        position: static;
+      }
+
+      .pipeline,
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GNS Zero-Client Reboot Orchestrator</h1>
+    <p>Browser dry-run demo for safe wireless AP reboot planning using synthetic data.</p>
+  </header>
+
+  <main>
+    <aside>
+      <h2>Talk To Agent</h2>
+      <label for="prompt">Request</label>
+      <textarea id="prompt">Find APs that are safe to reboot for site tag BLR-CAMPUS. Use uptime greater than 100 days, zero clients only, dry-run mode, and generate the validation report.</textarea>
+
+      <label for="site">Site tag</label>
+      <input id="site" value="BLR-CAMPUS">
+
+      <label for="uptime">Minimum uptime days</label>
+      <input id="uptime" type="number" min="1" value="100">
+
+      <label class="toggle">
+        <input id="dryRun" type="checkbox" checked>
+        Dry-run mode
+      </label>
+
+      <div class="actions">
+        <button class="primary" id="runBtn">Talk To Agent</button>
+        <button class="secondary" id="resetBtn" title="Reset">Reset</button>
+      </div>
+
+      <p class="hint">Use this screen for the recording if the live LLM path is unstable. It demonstrates the same AP safety workflow with synthetic data and no production connection.</p>
+    </aside>
+
+    <div class="workspace">
+      <section class="band">
+        <h2>Run Summary</h2>
+        <div class="metrics">
+          <div class="metric"><span>Inventory Reviewed</span><strong id="mReviewed">10</strong></div>
+          <div class="metric"><span>Site Matches</span><strong id="mSite">6</strong></div>
+          <div class="metric"><span>Eligible APs</span><strong id="mEligible">2</strong></div>
+          <div class="metric"><span>Blocked APs</span><strong id="mBlocked">4</strong></div>
+        </div>
+      </section>
+
+      <section class="band">
+        <h2>Agent Network Flow</h2>
+        <div class="pipeline" id="pipeline"></div>
+      </section>
+
+      <section class="band">
+        <h2>Agent Response</h2>
+        <div class="agent-answer" id="agentAnswer">
+          Ready. Enter the AP reboot request and click Talk To Agent.
+        </div>
+      </section>
+
+      <section class="band split">
+        <div>
+          <h2>Eligible APs</h2>
+          <div class="result-list" id="eligibleList"></div>
+        </div>
+        <div>
+          <h2>Blocked APs</h2>
+          <div class="result-list" id="blockedList"></div>
+        </div>
+      </section>
+
+      <section class="band">
+        <h2>Inventory Evidence</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>AP</th>
+              <th>Site</th>
+              <th>Uptime</th>
+              <th>Clients</th>
+              <th>State</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody"></tbody>
+        </table>
+      </section>
+
+      <section class="band">
+        <h2>Audit Report</h2>
+        <pre id="report"></pre>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const inventory = [
+      { ap: "AP-BLR-01", site: "BLR-CAMPUS", controller: "WLC-BLR-01", uptime: 143, clients: 0, reachable: true, state: "joined", window: true, critical: false },
+      { ap: "AP-BLR-02", site: "BLR-CAMPUS", controller: "WLC-BLR-01", uptime: 188, clients: 3, reachable: true, state: "joined", window: true, critical: false },
+      { ap: "AP-BLR-03", site: "BLR-CAMPUS", controller: "WLC-BLR-01", uptime: 121, clients: 0, reachable: true, state: "joined", window: true, critical: false },
+      { ap: "AP-BLR-04", site: "BLR-CAMPUS", controller: "WLC-BLR-01", uptime: 210, clients: 0, reachable: false, state: "unknown", window: true, critical: false },
+      { ap: "AP-BLR-05", site: "BLR-CAMPUS", controller: "WLC-BLR-01", uptime: 96, clients: 0, reachable: true, state: "joined", window: true, critical: false },
+      { ap: "AP-BLR-06", site: "BLR-CAMPUS", controller: "WLC-BLR-01", uptime: 155, clients: 0, reachable: true, state: "joined", window: false, critical: false },
+      { ap: "AP-HYD-01", site: "HYD-CAMPUS", controller: "WLC-HYD-01", uptime: 176, clients: 0, reachable: true, state: "joined", window: true, critical: false },
+      { ap: "AP-HYD-02", site: "HYD-CAMPUS", controller: "WLC-HYD-01", uptime: 201, clients: 0, reachable: true, state: "joined", window: true, critical: true },
+      { ap: "AP-PUN-01", site: "PUN-CAMPUS", controller: "WLC-PUN-01", uptime: 119, clients: 0, reachable: true, state: "joined", window: true, critical: false },
+      { ap: "AP-PUN-02", site: "PUN-CAMPUS", controller: "WLC-PUN-01", uptime: 132, clients: 1, reachable: true, state: "joined", window: true, critical: false }
+    ];
+
+    const agents = [
+      ["Inventory Agent", "Loads AP inventory and filters by site."],
+      ["Eligibility Agent", "Applies uptime and zero-client rules."],
+      ["Risk Agent", "Blocks unsafe APs with reasons."],
+      ["Execution Agent", "Creates dry-run reboot batches."],
+      ["Validation Agent", "Confirms dry-run validation status."],
+      ["Report Agent", "Builds audit-ready summary."]
+    ];
+
+    const pipeline = document.getElementById("pipeline");
+
+    function setupPipeline() {
+      pipeline.innerHTML = "";
+      agents.forEach(([name, desc]) => {
+        const node = document.createElement("div");
+        node.className = "agent";
+        node.innerHTML = `<strong>${name}</strong><span>${desc}</span>`;
+        pipeline.appendChild(node);
+      });
+    }
+
+    function blockReasons(ap, minUptime) {
+      const reasons = [];
+      if (ap.clients > 0) reasons.push("active clients present");
+      if (!ap.reachable) reasons.push("AP not reachable");
+      if (ap.state !== "joined") reasons.push("AP not joined to controller");
+      if (ap.uptime < minUptime) reasons.push(`uptime below ${minUptime} days`);
+      if (!ap.window) reasons.push("outside maintenance window");
+      if (ap.critical) reasons.push("critical site AP");
+      return reasons;
+    }
+
+    function analyze() {
+      const site = document.getElementById("site").value.trim() || "BLR-CAMPUS";
+      const minUptime = Number(document.getElementById("uptime").value || 100);
+      const dryRun = document.getElementById("dryRun").checked;
+      const siteAps = inventory.filter(ap => ap.site.toUpperCase() === site.toUpperCase());
+      const evaluated = siteAps.map(ap => ({ ...ap, reasons: blockReasons(ap, minUptime) }));
+      const eligible = evaluated.filter(ap => ap.reasons.length === 0);
+      const blocked = evaluated.filter(ap => ap.reasons.length > 0);
+
+      document.getElementById("mReviewed").textContent = inventory.length;
+      document.getElementById("mSite").textContent = siteAps.length;
+      document.getElementById("mEligible").textContent = eligible.length;
+      document.getElementById("mBlocked").textContent = blocked.length;
+
+      renderLists(eligible, blocked);
+      renderInventory(evaluated, eligible);
+      renderReport(site, minUptime, dryRun, eligible, blocked);
+      animateAgents();
+    }
+
+    function renderLists(eligible, blocked) {
+      const eligibleList = document.getElementById("eligibleList");
+      const blockedList = document.getElementById("blockedList");
+      eligibleList.innerHTML = eligible.length ? "" : "<div class='result-item'><strong>No eligible APs</strong><span>No AP passed all safety checks.</span></div>";
+      blockedList.innerHTML = blocked.length ? "" : "<div class='result-item'><strong>No blocked APs</strong><span>All site APs passed safety checks.</span></div>";
+
+      eligible.forEach(ap => {
+        const item = document.createElement("div");
+        item.className = "result-item";
+        item.innerHTML = `<strong>${ap.ap}</strong><span>${ap.site}, uptime ${ap.uptime} days, clients ${ap.clients}, ${ap.state}</span>`;
+        eligibleList.appendChild(item);
+      });
+
+      blocked.forEach(ap => {
+        const item = document.createElement("div");
+        item.className = "result-item blocked";
+        item.innerHTML = `<strong>${ap.ap}</strong><span>${ap.reasons.join(", ")}</span>`;
+        blockedList.appendChild(item);
+      });
+    }
+
+    function renderInventory(evaluated, eligible) {
+      const eligibleNames = new Set(eligible.map(ap => ap.ap));
+      const body = document.getElementById("inventoryBody");
+      body.innerHTML = "";
+
+      evaluated.forEach(ap => {
+        const ok = eligibleNames.has(ap.ap);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${ap.ap}</td>
+          <td>${ap.site}</td>
+          <td>${ap.uptime} days</td>
+          <td>${ap.clients}</td>
+          <td>${ap.reachable ? "reachable" : "unreachable"} / ${ap.state}</td>
+          <td><span class="badge ${ok ? "ok" : "bad"}">${ok ? "Eligible" : "Blocked"}</span></td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderReport(site, minUptime, dryRun, eligible, blocked) {
+      const mode = dryRun ? "DRY RUN" : "LIVE MODE BLOCKED IN DEMO";
+      const planned = eligible.map(ap => `- ${ap.ap}: planned`).join("\n") || "- None";
+      const eligibleLines = eligible.map(ap => `- ${ap.ap} (${ap.site}, uptime ${ap.uptime} days, clients ${ap.clients})`).join("\n") || "- None";
+      const blockedLines = blocked.map(ap => `- ${ap.ap}: ${ap.reasons.join(", ")}`).join("\n") || "- None";
+      const validation = eligible.map(ap => `- ${ap.ap}: dry_run_not_executed - No live change performed`).join("\n") || "- None";
+
+      document.getElementById("agentAnswer").innerHTML =
+        `I reviewed the synthetic AP inventory, delegated the request across inventory, eligibility, risk, execution, validation, and report agents, and kept the workflow in dry-run mode. ` +
+        `For ${site}, ${eligible.length} APs are safe reboot candidates and ${blocked.length} APs are blocked by safety guardrails.`;
+
+      document.getElementById("report").textContent = `# AP Reboot Orchestration Report
+
+- Site tag: ${site}
+- Minimum uptime: ${minUptime} days
+- Mode: ${mode}
+- Inventory APs reviewed: ${inventory.length}
+- Eligible APs: ${eligible.length}
+- Blocked APs: ${blocked.length}
+
+## Eligible APs
+${eligibleLines}
+
+## Blocked APs
+${blockedLines}
+
+## Reboot Actions
+${planned}
+
+## Validation
+${validation}
+
+## Safety Note
+- This is a dry-run demonstration using synthetic AP data.
+- No controller connection or live reboot is performed.`;
+    }
+
+    function animateAgents() {
+      const nodes = Array.from(document.querySelectorAll(".agent"));
+      nodes.forEach(node => node.className = "agent");
+      nodes.forEach((node, index) => {
+        setTimeout(() => {
+          nodes.forEach(n => n.classList.remove("active"));
+          node.classList.add("active");
+          if (index > 0) nodes[index - 1].classList.add("done");
+          if (index === nodes.length - 1) {
+            setTimeout(() => {
+              node.classList.remove("active");
+              node.classList.add("done");
+            }, 350);
+          }
+        }, index * 360);
+      });
+    }
+
+    document.getElementById("runBtn").addEventListener("click", analyze);
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("site").value = "BLR-CAMPUS";
+      document.getElementById("uptime").value = 100;
+      document.getElementById("dryRun").checked = true;
+      analyze();
+    });
+
+    setupPipeline();
+    analyze();
+  </script>
+</body>
+</html>
