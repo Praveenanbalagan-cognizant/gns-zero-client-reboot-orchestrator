@@ -42,6 +42,20 @@ flowchart LR
 | Validation Agent | Checks whether rebooted APs recover to joined and reachable state. | Demonstrates closed-loop automation, not only triggering action. |
 | Report Agent | Produces a report with selected, skipped, rebooted, validated, and failed APs. | Creates an evaluator-friendly output artifact. |
 
+## Why Neuro SAN Is Required
+
+Neuro SAN is required for the orchestration layer. The AP reboot use case has several linked operational responsibilities that should not be hidden inside one script: inventory discovery, eligibility filtering, risk blocking, dry-run execution, validation, and reporting. Neuro SAN lets the project model each responsibility as a specialist agent and then coordinate them through the front agent.
+
+This architecture is useful because:
+
+- The front agent turns a natural wireless maintenance request into an agent workflow.
+- Each specialist agent owns one operational decision area.
+- The coded tool performs deterministic checks so the output remains consistent and safe.
+- The final response explains both selected APs and blocked APs.
+- The workflow can be extended later to approved controller APIs without changing the agent design.
+
+In short, Neuro SAN is the reason the project is an agentic system rather than a standalone AP filtering script.
+
 ## Data Flow
 
 1. The user asks for AP reboot planning using the Streamlit UI, `backend/live_agent.py`, or the Neuro SAN client with a site tag and safety requirements.
