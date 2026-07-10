@@ -1,0 +1,173 @@
+{
+  include "backend/registries/llm_config.hocon"
+
+  "metadata": {
+    "description": "Agentic wireless AP reboot orchestration using safety guardrails, dry-run execution, validation, and reporting.",
+    "tags": ["wireless", "operations", "ap-reboot", "hackathon"],
+    "sample_queries": [
+      "Find APs that are safe to reboot for site tag BLR-CAMPUS. Use uptime greater than 100 days, zero clients only, dry-run mode, and generate the validation report."
+    ]
+  },
+
+  "instructions_prefix": """
+  You are part of a wireless operations agent network. Only handle AP reboot planning, safety checks, validation, and reporting. Do not reveal or request credentials. Do not use real client data. Prefer dry-run mode unless explicit live approval is present.
+  """,
+
+  "aaosa_instructions": """
+  When you receive an inquiry:
+  1. Decide which specialist agent should handle each part of the request.
+  2. Ask the specialist agents for their required inputs.
+  3. Delegate the work to the proper specialist agents.
+  4. Compile their responses into one clear wireless-operations answer.
+  5. Clearly state eligible APs, blocked APs, safety reasons, dry-run actions, and validation results.
+  """,
+
+  "tools": [
+    {
+      "name": "Wireless_Reboot_Copilot",
+      "function": {
+        "description": "Coordinates safe AP reboot planning using inventory, eligibility, risk, execution, validation, and reporting agents."
+      },
+      "instructions": ${instructions_prefix} """
+      You are the front agent for the AP reboot workflow. Your job is to understand the user's maintenance request, delegate to the specialist agents, and return a concise final answer with safety explanations.
+      Always use dry-run mode unless the user explicitly provides live approval and a maintenance window.
+      """ ${aaosa_instructions},
+      "tools": ["Inventory_Agent", "Eligibility_Agent", "Risk_Agent", "Execution_Agent", "Validation_Agent", "Report_Agent"]
+    },
+
+    {
+      "name": "Inventory_Agent",
+      "function": {
+        "description": "Reviews AP inventory and identifies APs by site tag, controller, uptime, client count, and joined state.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "site_tag": {"type": "string", "description": "Site tag to review"},
+            "inventory_path": {"type": "string", "description": "Path to the AP inventory CSV"}
+          }
+        }
+      },
+      "instructions": ${instructions_prefix} """
+      Review inventory inputs and call APRebootTool to load and summarize candidate APs. Focus on site tag, uptime, client count, reachability, and controller state.
+      """,
+      "command": "Call APRebootTool with action full_report, inventory_path, and site_tag.",
+      "tools": ["APRebootTool"]
+    },
+
+    {
+      "name": "Eligibility_Agent",
+      "function": {
+        "description": "Selects APs that meet uptime and zero-client eligibility rules.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "site_tag": {"type": "string"},
+            "min_uptime_days": {"type": "integer"}
+          }
+        }
+      },
+      "instructions": ${instructions_prefix} """
+      Select only APs with uptime greater than or equal to the requested threshold and zero active clients. Do not approve APs with active clients.
+      """,
+      "command": "Call APRebootTool and return eligible_aps plus any blocked_aps.",
+      "tools": ["APRebootTool"]
+    },
+
+    {
+      "name": "Risk_Agent",
+      "function": {
+        "description": "Applies risk guardrails before reboot planning.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "site_tag": {"type": "string"},
+            "min_uptime_days": {"type": "integer"}
+          }
+        }
+      },
+      "instructions": ${instructions_prefix} """
+      Block APs that are unreachable, not joined, outside maintenance window, critical site APs, below uptime threshold, or have active clients. Always explain the blocker reason.
+      """,
+      "command": "Call APRebootTool and return blocked_aps with reasons.",
+      "tools": ["APRebootTool"]
+    },
+
+    {
+      "name": "Execution_Agent",
+      "function": {
+        "description": "Builds reboot batches and performs dry-run or approved reboot execution.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "site_tag": {"type": "string"},
+            "dry_run": {"type": "boolean"}
+          }
+        }
+      },
+      "instructions": ${instructions_prefix} """
+      Default to dry-run mode. If live mode is requested without explicit approval, refuse live execution and provide a dry-run plan instead.
+      """,
+      "command": "Call APRebootTool and return reboot_plan and reboot_results.",
+      "tools": ["APRebootTool"]
+    },
+
+    {
+      "name": "Validation_Agent",
+      "function": {
+        "description": "Validates AP recovery after reboot actions.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "site_tag": {"type": "string"},
+            "dry_run": {"type": "boolean"}
+          }
+        }
+      },
+      "instructions": ${instructions_prefix} """
+      Validate whether APs are joined and reachable after reboot. In dry-run mode, clearly state that no live validation was performed.
+      """,
+      "command": "Call APRebootTool and return validation.",
+      "tools": ["APRebootTool"]
+    },
+
+    {
+      "name": "Report_Agent",
+      "function": {
+        "description": "Creates the final AP reboot orchestration report.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "site_tag": {"type": "string"},
+            "min_uptime_days": {"type": "integer"},
+            "dry_run": {"type": "boolean"}
+          }
+        }
+      },
+      "instructions": ${instructions_prefix} """
+      Produce a clean final report that includes selected APs, blocked APs, reboot actions, validation, and safety notes.
+      """,
+      "command": "Call APRebootTool with action report.",
+      "tools": ["APRebootTool"]
+    },
+
+    {
+      "name": "APRebootTool",
+      "function": {
+        "description": "Python coded tool for AP reboot candidate selection, safety checks, dry-run execution, validation, and report generation.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "action": {"type": "string", "description": "full_report or report"},
+            "inventory_path": {"type": "string", "description": "Path to AP inventory CSV"},
+            "site_tag": {"type": "string", "description": "Site tag filter"},
+            "min_uptime_days": {"type": "integer", "description": "Minimum AP uptime days"},
+            "batch_size": {"type": "integer", "description": "Maximum AP count per reboot batch"},
+            "dry_run": {"type": "boolean", "description": "Use dry-run mode"}
+          },
+          "required": ["action"]
+        }
+      },
+      "class": "coded_tools.ap_reboot.ap_reboot_tool.APRebootTool"
+    }
+  ]
+}
