@@ -1,0 +1,11 @@
+ap_name,site_tag,controller,uptime_days,client_count,reachable,controller_state,maintenance_window,critical_site,last_reboot_result
+AP-BLR-01,BLR-CAMPUS,WLC-BLR-01,143,0,true,joined,true,false,success
+AP-BLR-02,BLR-CAMPUS,WLC-BLR-01,188,3,true,joined,true,false,success
+AP-BLR-03,BLR-CAMPUS,WLC-BLR-01,121,0,true,joined,true,false,success
+AP-BLR-04,BLR-CAMPUS,WLC-BLR-01,210,0,false,unknown,true,false,failed
+AP-BLR-05,BLR-CAMPUS,WLC-BLR-01,96,0,true,joined,true,false,success
+AP-BLR-06,BLR-CAMPUS,WLC-BLR-01,155,0,true,joined,false,false,success
+AP-HYD-01,HYD-CAMPUS,WLC-HYD-01,176,0,true,joined,true,false,success
+AP-HYD-02,HYD-CAMPUS,WLC-HYD-01,201,0,true,joined,true,true,success
+AP-PUN-01,PUN-CAMPUS,WLC-PUN-01,119,0,true,joined,true,false,success
+AP-PUN-02,PUN-CAMPUS,WLC-PUN-01,132,1,true,joined,true,false,success
