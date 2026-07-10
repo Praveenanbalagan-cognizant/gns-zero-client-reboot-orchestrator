@@ -80,7 +80,7 @@ python -m neuro_san.client.hocon_validator_cli backend/registries/ap_reboot_orch
 ## Project Structure
 
 ```text
-GNS_Zero_Client_Reboot_Orchestrator/
+gns-zero-client-reboot-orchestrator/
 |-- backend/
 |   |-- run.py
 |   |-- ap_reboot_tools.py
@@ -100,8 +100,6 @@ GNS_Zero_Client_Reboot_Orchestrator/
 |-- requirements.txt
 |-- architecture.md
 |-- summary.md
-|-- demo_video_script.md
-|-- submission_checklist.md
 `-- README.md
 ```
 
