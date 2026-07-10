@@ -4,7 +4,7 @@
 
 GNS Zero-Client Reboot Orchestrator is an agentic wireless operations assistant built for the Neuro SAN hackathon. The project focuses on a real operational problem: safely rebooting wireless access points that have very high uptime while avoiding user impact. In large wireless environments, APs may remain online for more than 100 days. Periodic maintenance can help reduce instability, but manual selection is time-consuming and bulk reboot actions can be risky if an AP still has connected users or if the device is part of a critical site.
 
-This project improves the AP reboot process by adding a Neuro SAN multi-agent orchestration layer over a deterministic Python tool. The Python tool performs the actual operational checks, while the agents reason through the workflow, explain decisions, and produce a clear report. The goal is not to replace the wireless engineer; the goal is to give the engineer a safer and faster decision-support workflow.
+This project improves the AP reboot process by adding a Neuro SAN multi-agent orchestration layer over a deterministic Python tool. The Python tool performs the actual operational checks, while the agents reason through the workflow, explain decisions, and produce a clear report. The repository includes a live Neuro SAN direct-agent run path using NVIDIA/NVAPI, plus a deterministic dry-run path for safe fallback demonstration. The goal is not to replace the wireless engineer; the goal is to give the engineer a safer and faster decision-support workflow.
 
 ## Problem Statement
 
@@ -55,13 +55,15 @@ The demo shows an engineer asking:
 
 The system then:
 
-1. Loads synthetic AP inventory.
-2. Finds APs matching the site tag.
-3. Selects APs with uptime greater than 100 days and zero clients.
-4. Blocks APs that fail safety checks.
-5. Creates a dry-run reboot plan.
-6. Simulates validation.
-7. Generates a final report.
+1. Sends the prompt to the Neuro SAN front agent.
+2. Delegates the request across the inventory, eligibility, risk, execution, validation, and report agents.
+3. Calls the coded AP reboot tool against synthetic AP inventory.
+4. Finds APs matching the site tag.
+5. Selects APs with uptime greater than 100 days and zero clients.
+6. Blocks APs that fail safety checks.
+7. Creates a dry-run reboot plan.
+8. Simulates validation.
+9. Generates a final report.
 
 ## Expected Impact
 
